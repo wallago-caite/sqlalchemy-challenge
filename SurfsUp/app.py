@@ -32,20 +32,26 @@ session = Session(engine)
 #################################################
 app = Flask(__name__)
 
+if __name__ == '__main__':
+    app.run(host='localhost', port=8080, debug=True)
 
 #################################################
 # Flask Routes
 #################################################
-app.route('/')
-def home():
-    return "Hello World"
 
-if __name__ == '__main__':
-    app.run(host='localhost', port=8080, debug=True)
-
-
-###
 #LIST ALL ROUTES
+@app.route("/")
+def home():
+    """List of all available api routes."""
+    return (
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/start<br/>"
+        f"/api/v1.0/start/end"
+    )
+
 
 #/api/v1.0/0/precipitation : 
 # Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary using date as the key and prcp as the value
