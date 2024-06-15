@@ -1,5 +1,5 @@
 # Import the dependencies.
-from flask import Flask, jsonify
+from flask import Flask, jsonify # , render_template
 import datetime as dt
 
 import sqlalchemy as sql
@@ -18,49 +18,57 @@ engine = sql.create_engine("sqlite:///Resources/hawaii.sqlite")
 Base = automap_base()
 
 # reflect the tables
-base.prepare(autoload_with = engine)
+Base.prepare(autoload_with=engine)
 
 # Save references to each table
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
 # Create our session (link) from Python to the DB
-session = Session(engine)
+#session = Session(engine) # don't do this---- put this within each routing function-- local variable, each user = own private session
 
 #################################################
 # Flask Setup
 #################################################
 app = Flask(__name__)
 
-if __name__ == '__main__':
-    app.run(host='localhost', port=8080, debug=True)
 
 #################################################
-# Flask Routes
+# HTML Routes (front end)
 #################################################
-
-#LIST ALL ROUTES
 @app.route("/")
 def home():
     """List of all available api routes."""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/precipitation<br/>"
-        f"/api/v1.0/stations<br/>"
+        f"<a href='/api/v1.0/precipitation'>/api/v1.0/precipitation</a><br/>"
+        f"<a href='/api/v1.0/stations'>/api/v1.0/stations</a><br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/start<br/>"
-        f"/api/v1.0/start/end"
+        f"/api/v1.0/tstats/&lt;start&gt;<br/>"
+        f"/api/v1.0/tstats/&lt;start&gt/&lt;end&gt;<br/>"
+
     )
 
 
+#################################################
+# API Routes (back end)
+#################################################
+
+
 #/api/v1.0/0/precipitation : 
-# Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary using date as the key and prcp as the value
+# Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary 
+#       using date as the key and prcp as the value
 # Return the JSON representation of your dictionary.
 
 
 #/api/v1.0/stations : 
 # Return a JSON list of stations from the dataset.
-
+@app.route("/api/v1.0/stations")
+def station_list():
+    session = Session(engine)
+    fake_station_list = ["station1", "station2"]
+    session.close()
+    return jsonify(fake_station_list)
 
 #/api/v1.0/tobs : 
 #Query the dates and temperature observations of the most-active station for the previous year of data.
@@ -71,3 +79,8 @@ def home():
 # For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
 # For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive.
 
+
+#############################
+# prevents from running unless this is named app.py
+if __name__ == '__main__':
+    app.run(host='localhost', port=8080, debug=True)
