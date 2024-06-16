@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stations List</title>
+</head>
+<body>
+    <h1>JSON List of Stations in Hawaii Data:</h1>
+    <h2>
+        {% set number_of_stations_tuple = session.query(func.count(Station.station)).all() %}
+        {% set number_of_stations = number_of_stations_tuple[0][0] %}
+        There are {{ number_of_stations }} stations in this dataset.
+    </h2>
+    <pre id="json-data"></pre>
+    
+    <script>
+        // This script will dynamically insert the JSON data into the page
+        const jsonData = {{ stations|tojson }};
+        document.getElementById('json-data').textContent = JSON.stringify(jsonData, null, 2);
+    </script>
+</body>
+</html>
