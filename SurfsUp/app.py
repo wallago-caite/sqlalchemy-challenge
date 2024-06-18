@@ -134,38 +134,25 @@ def tobs_list():
     # Return JSON representation of the dictionary
     return jsonify(tobs_data)
 
-#/api/v1.0/<cstart> and /api/v1.0/<cstart>/<end>
+#/a pi/v1.0/<cstart> and /api/v1.0/<cstart>/<end>
 # Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
 # For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
-# For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive.
+# For a specified start dateand end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive.
 
 #PT1- start only 
-@app.route("/api/v1.0/tstats/&lt;start&gt;")
-def start(start):
+@app.route("/api/v1.0/tstats/<start_date>")
+@app.route("/api/v1.0/tstats/<start_date>/<end_date>")
+def tstats(start_date, end_date=dt.date(dt.MAXYEAR,12,31)):
     session = Session(engine)
-    start_tobs = session.query(func.min(Measurement.tobs), 
-                                     func.avg(Measurement.tobs), 
-                                     func.max(Measurement.tobs)
-                                     ).filter(Measurement.date >= start
-                                              ).all()
-    #(TMIN,TAVG,TMAX)
+    result = session.query(
+                    func.min(Measurement.tobs), 
+                    func.avg(Measurement.tobs), 
+                    func.max(Measurement.tobs))\
+        .filter(Measurement.date >= start_date)\
+        .filter(Measurement.date <= end_date)\
+        .first()
     session.close()
-    return jsonify(start_tobs)
-
-
-#PT2- start and end 
-@app.route("/api/v1.0/tstats/&lt;start&gt;")
-def start_end(start,end):
-    session = Session(engine)
-    start_end_tobs = session.query(func.min(Measurement.tobs), 
-                                     func.avg(Measurement.tobs), 
-                                     func.max(Measurement.tobs)
-                                     ).filter(Measurement.date >= start
-                                              ).filter(Measurement.date <=end
-                                                       ).all()
-    #(TMIN,TAVG,TMAX)
-    session.close()
-    return jsonify(start_end_tobs)
+    return jsonify(list(result))
 
 #############################
 # prevents from running unless this is named app.py
